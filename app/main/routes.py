@@ -1,15 +1,24 @@
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 from sqlalchemy import func
+import re
 
 from app.main import bp
 from app.extensions import db
 from app.models import Set, Card, Collection
-from flask import abort
+
 
 def admin_required():
     if not current_user.is_authenticated or not current_user.is_admin:
         abort(403)
+
+
+def card_sort_key(card):
+    text = (card.number or "").strip()
+    match = re.match(r"(\d+)", text)
+    if match:
+        return int(match.group(1))
+    return 9999
 
 
 @bp.route("/")
@@ -20,12 +29,10 @@ def index():
     overview = []
 
     for s in sets:
-        # Gesamtanzahl Karten im Set
         total = db.session.query(func.count(Card.id))\
             .filter(Card.set_id == s.id)\
             .scalar()
 
-        # Anzahl Karten, die der User besitzt
         owned = db.session.query(func.count(Collection.id))\
             .join(Card, Collection.card_id == Card.id)\
             .filter(
@@ -43,7 +50,6 @@ def index():
             "percent": percent
         })
 
-    # Gesamtwerte über alle Sets
     total_cards_all = sum(row["total"] for row in overview)
     owned_cards_all = sum(row["owned"] for row in overview)
     percent_all = round((owned_cards_all / total_cards_all) * 100, 1) if total_cards_all else 0.0
@@ -99,6 +105,7 @@ def manage_sets():
 
     sets = Set.query.order_by(Set.name.asc()).all()
     return render_template("manage_sets.html", sets=sets)
+
 
 # =========================
 # ADMIN: SET BEARBEITEN / LÖSCHEN
@@ -182,8 +189,11 @@ def manage_cards(set_id):
         flash("Karte hinzugefügt.")
         return redirect(url_for("main.manage_cards", set_id=set_id))
 
-    cards = Card.query.filter_by(set_id=set_id).order_by(Card.number.asc()).all()
+    cards = Card.query.filter_by(set_id=set_id).all()
+    cards = sorted(cards, key=card_sort_key)
+
     return render_template("manage_cards.html", selected_set=selected_set, cards=cards)
+
 
 # =========================
 # ADMIN: CARD BEARBEITEN / LÖSCHEN
@@ -261,20 +271,19 @@ def view_set(set_id):
         db.session.commit()
         return redirect(url_for("main.view_set", set_id=set_id))
 
-    # Alle Karten dieses Sets
-    cards = Card.query.filter_by(set_id=set_id).order_by(Card.number.asc()).all()
+    cards = Card.query.filter_by(set_id=set_id).all()
+    cards = sorted(cards, key=card_sort_key)
 
-    # IDs der Karten, die der User besitzt
     owned_cards = {
         c.card_id
         for c in Collection.query.filter_by(user_id=current_user.id).all()
     }
 
-    # Fortschritt berechnen
     total_cards = len(cards)
     owned_count = sum(1 for card in cards if card.id in owned_cards)
     progress_percent = round((owned_count / total_cards) * 100, 1) if total_cards > 0 else 0.0
     missing_cards = [card for card in cards if card.id not in owned_cards]
+    missing_cards = sorted(missing_cards, key=card_sort_key)
 
     return render_template(
         "view_set.html",
