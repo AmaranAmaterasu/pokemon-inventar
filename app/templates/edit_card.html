@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Karte bearbeiten</h2>
+
+<form method="POST">
+  <input type="text" name="name"
+         value="{{ c.name }}" required><br><br>
+
+  <input type="text" name="number"
+         value="{{ c.number }}" required><br><br>
+
+  <input type="text" name="rarity"
+         value="{{ c.rarity or '' }}"
+         placeholder="Rarity"><br><br>
+
+  <button type="submit">Speichern</button>
+  <a href="{{ url_for('main.manage_cards', set_id=c.set_id) }}">Abbrechen</a>
+</form>
+
+{% endblock %}

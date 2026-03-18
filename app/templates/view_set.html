@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>{{ selected_set.name }}</h2>
+
+<!-- Fortschritt -->
+<p>
+  Fortschritt: <strong>{{ owned_count }}</strong> / <strong>{{ total_cards }}</strong>
+  Karten ({{ progress_percent }}%)
+</p>
+
+{% if total_cards > 0 %}
+  <div style="border:1px solid #999; width: 300px; height: 16px;">
+  <div style="height:16px; width: {{ progress_percent|int }}%; background-color:#4caf50;"></div>
+  </div>
+{% endif %}
+
+<hr>
+
+<!-- Fehlende Karten -->
+<h3>Fehlende Karten</h3>
+<ul>
+  {% for card in missing_cards %}
+    <li>{{ card.number }} – {{ card.name }}</li>
+  {% else %}
+    <li>Keine fehlenden Karten 🎉</li>
+  {% endfor %}
+</ul>
+
+<hr>
+
+<!-- Alle Karten mit Toggle -->
+<h3>Alle Karten</h3>
+<ul>
+  {% for card in cards %}
+    <li>
+      <form method="POST" style="display:inline;">
+        <input type="hidden" name="card_id" value="{{ card.id }}">
+        <button type="submit">
+          {% if card.id in owned_cards %}✅{% else %}❌{% endif %}
+        </button>
+      </form>
+
+      {{ card.number }} – {{ card.name }}
+      {% if card.rarity %} ({{ card.rarity }}){% endif %}
+    </li>
+  {% else %}
+    <li>Noch keine Karten in diesem Set.</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

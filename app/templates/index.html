@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Übersicht{% endblock %}
+{% block content %}
+
+<h1>Pokémon Karten Inventar</h1>
+
+<p>
+  <strong>Gesamt:</strong> {{ owned_cards_all }} / {{ total_cards_all }} Karten gesammelt ({{ percent_all }}%)
+  <br>
+  <strong>Sets:</strong> {{ sets_complete }} / {{ sets_total }} vollständig
+</p>
+
+{% if total_cards_all > 0 %}
+  <div style="border:1px solid #999; width: 300px; height: 16px; margin-bottom: 12px;">
+    <div style="height:16px; width: {{ percent_all|int }}%; background-color:#4caf50;"></div>
+  </div>
+{% endif %}
+
+<table border="1" cellpadding="6" cellspacing="0">
+  <tr>
+    <th>Set</th>
+    <th>Fortschritt</th>
+    <th>%</th>
+    <th>Aktionen</th>
+  </tr>
+
+  {% for row in overview %}
+    <tr>
+      <td>
+        {{ row.set.name }}
+        {% if row.set.series %} ({{ row.set.series }}){% endif %}
+      </td>
+      <td>{{ row.owned }} / {{ row.total }}</td>
+   <td>
+      {{ row.percent }}%
+     <div style="border:1px solid #999; width:150px; height:10px; margin-top:4px;">
+       <div style="height:10px; width: {{ row.percent|int }}%; background-color:#4caf50;"></div>
+     </div>
+  </td>
+      <td>
+        <a href="{{ url_for('main.view_set', set_id=row.set.id) }}">Set ansehen</a>
+
+        {% if current_user.is_admin %}
+          | <a href="{{ url_for('main.manage_cards', set_id=row.set.id) }}">Karten verwalten</a>
+        {% endif %}
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="4">Noch keine Sets vorhanden.</td></tr>
+  {% endfor %}
+</table>
+
+{% endblock %}

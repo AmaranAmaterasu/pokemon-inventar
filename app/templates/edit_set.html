@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Set bearbeiten</h2>
+
+<form method="POST">
+  <input type="text" name="name" value="{{ s.name }}" required><br><br>
+
+  <input type="text" name="series"
+         value="{{ s.series or '' }}"
+         placeholder="Serie"><br><br>
+
+  <input type="number" name="year"
+         value="{{ s.release_year or '' }}"
+         placeholder="Release Year"><br><br>
+
+  <button type="submit">Speichern</button>
+  <a href="{{ url_for('main.manage_sets') }}">Abbrechen</a>
+</form>
+
+{% endblock %}

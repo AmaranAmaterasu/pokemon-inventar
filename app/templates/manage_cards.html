@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Karten verwalten – {{ selected_set.name }}</h2>
+
+<form method="POST">
+  <input type="text" name="name" placeholder="Kartenname" required><br><br>
+  <input type="text" name="number" placeholder="Nummer (z.B. 12/102)" required><br><br>
+  <input type="text" name="rarity" placeholder="Rarity"><br><br>
+  <button type="submit">Karte hinzufügen</button>
+</form>
+
+<hr>
+
+<h3>Karten in diesem Set</h3>
+<ul>
+{% for c in cards %}
+  <li>
+    {{ c.number }} – {{ c.name }}
+    {% if c.rarity %} ({{ c.rarity }}){% endif %}
+
+    | <a href="{{ url_for('main.admin_edit_card', card_id=c.id) }}">✏️ Edit</a>
+
+    | <form method="POST"
+           action="{{ url_for('main.admin_delete_card', card_id=c.id) }}"
+           style="display:inline;"
+           onsubmit="return confirm('Karte wirklich löschen?');">
+        <button type="submit">🗑 Delete</button>
+      </form>
+  </li>
+{% else %}
+  <li>Noch keine Karten vorhanden.</li>
+{% endfor %}
+</ul>
+
+{% endblock %}
