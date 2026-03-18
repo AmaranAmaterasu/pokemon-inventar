@@ -2,26 +2,48 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Pokémon Inventar{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <nav>
-  <a href="/">Home</a>
+  <nav class="navbar">
+    <div class="nav-left">
+      <a class="brand" href="{{ url_for('main.index') }}">Pokémon Inventar</a>
+    </div>
 
-  {% if current_user.is_authenticated %}
-      | Eingeloggt als {{ current_user.username }}
+    <div class="nav-right">
+      {% if current_user.is_authenticated %}
+        <span>Eingeloggt als <strong>{{ current_user.username }}</strong></span>
 
-      {% if current_user.is_admin %}
-          | <a href="{{ url_for('main.manage_sets') }}">Admin Sets</a>
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('main.manage_sets') }}">Admin Sets</a>
+        {% endif %}
+
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Login</a>
+        <a href="{{ url_for('auth.register') }}">Registrieren</a>
       {% endif %}
-
-      | <a href="{{ url_for('auth.logout') }}">Logout</a>
-  {% else %}
-      | <a href="{{ url_for('auth.login') }}">Login</a>
-      | <a href="{{ url_for('auth.register') }}">Register</a>
-  {% endif %}
+    </div>
   </nav>
-  <hr>
-  {% block content %}{% endblock %}
+
+  <main class="container">
+    <div class="panel">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-container">
+            {% for category, message in messages %}
+              <div class="flash {{ category if category else 'message' }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </main>
 </body>
 </html>

@@ -2,44 +2,49 @@
 {% block content %}
 
 <h2>Sets verwalten (Admin)</h2>
+<p class="muted">Hier kannst du neue Sets erstellen und bestehende bearbeiten.</p>
 
-<form method="POST">
-    <input type="text" name="name" placeholder="Set Name" required><br><br>
-    <input type="text" name="series" placeholder="Serie"><br><br>
-    <input type="number" name="year" placeholder="Release Year"><br><br>
-    <button type="submit">Set erstellen</button>
+<form method="POST" class="form-grid">
+    <input type="text" name="name" placeholder="Set Name" required>
+    <input type="text" name="series" placeholder="Serie">
+    <input type="number" name="year" placeholder="Release Year">
+    <div class="actions">
+      <button type="submit">Set erstellen</button>
+    </div>
 </form>
 
-<hr>
+<div class="section-space">
+  <h3>Bestehende Sets</h3>
 
-<h3>Bestehende Sets</h3>
-<ul>
-  {% for s in sets %}
-<li>
-  {{ s.name }}
-  {% if s.series or s.release_year %}
-    (
-    {% if s.series %}{{ s.series }}{% endif %}
-    {% if s.series and s.release_year %} - {% endif %}
-    {% if s.release_year %}{{ s.release_year }}{% endif %}
-    )
-  {% endif %}
+  <ul class="list-clean">
+    {% for s in sets %}
+      <li class="list-item">
+        <strong>{{ s.name }}</strong>
+        {% if s.series or s.release_year %}
+          <div class="muted">
+            {% if s.series %}{{ s.series }}{% endif %}
+            {% if s.series and s.release_year %} – {% endif %}
+            {% if s.release_year %}{{ s.release_year }}{% endif %}
+          </div>
+        {% endif %}
 
-  - <a href="{{ url_for('main.manage_cards', set_id=s.id) }}">Karten verwalten</a>
-  | <a href="{{ url_for('main.view_set', set_id=s.id) }}">Set ansehen</a>
+        <div class="actions section-space">
+          <a class="btn" href="{{ url_for('main.manage_cards', set_id=s.id) }}">Karten verwalten</a>
+          <a class="btn btn-secondary" href="{{ url_for('main.view_set', set_id=s.id) }}">Set ansehen</a>
+          <a class="btn btn-secondary" href="{{ url_for('main.admin_edit_set', set_id=s.id) }}">Bearbeiten</a>
 
-  | <a href="{{ url_for('main.admin_edit_set', set_id=s.id) }}">✏️ Edit</a>
-
-  | <form method="POST"
-         action="{{ url_for('main.admin_delete_set', set_id=s.id) }}"
-         style="display:inline;"
-         onsubmit="return confirm('Set wirklich löschen? Alle Karten im Set werden auch gelöscht.');">
-        <button type="submit">🗑 Delete</button>
-    </form>
-</li>
-  {% else %}
-    <li>Noch keine Sets vorhanden.</li>
-  {% endfor %}
-</ul>
+          <form method="POST"
+                action="{{ url_for('main.admin_delete_set', set_id=s.id) }}"
+                class="inline-form"
+                onsubmit="return confirm('Set wirklich löschen? Alle Karten im Set werden auch gelöscht.');">
+            <button type="submit" class="btn btn-danger">Löschen</button>
+          </form>
+        </div>
+      </li>
+    {% else %}
+      <li class="list-item">Noch keine Sets vorhanden.</li>
+    {% endfor %}
+  </ul>
+</div>
 
 {% endblock %}

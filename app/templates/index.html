@@ -3,51 +3,65 @@
 {% block content %}
 
 <h1>Pokémon Karten Inventar</h1>
+<p class="muted">Hier siehst du deinen Gesamtfortschritt über alle Sets.</p>
 
-<p>
-  <strong>Gesamt:</strong> {{ owned_cards_all }} / {{ total_cards_all }} Karten gesammelt ({{ percent_all }}%)
-  <br>
-  <strong>Sets:</strong> {{ sets_complete }} / {{ sets_total }} vollständig
-</p>
-
-{% if total_cards_all > 0 %}
-  <div style="border:1px solid #999; width: 300px; height: 16px; margin-bottom: 12px;">
-    <div style="height:16px; width: {{ percent_all|int }}%; background-color:#4caf50;"></div>
+<div class="stats">
+  <div class="stat-box">
+    <strong>Gesammelte Karten</strong>
+    <p>{{ owned_cards_all }} / {{ total_cards_all }} Karten</p>
+    <p>{{ percent_all }}%</p>
+    {% if total_cards_all > 0 %}
+      <div class="progress">
+        <div class="progress-bar" style="width: {{ percent_all|int }}%;"></div>
+      </div>
+    {% endif %}
   </div>
-{% endif %}
 
-<table border="1" cellpadding="6" cellspacing="0">
-  <tr>
-    <th>Set</th>
-    <th>Fortschritt</th>
-    <th>%</th>
-    <th>Aktionen</th>
-  </tr>
+  <div class="stat-box">
+    <strong>Vollständige Sets</strong>
+    <p>{{ sets_complete }} / {{ sets_total }} Sets</p>
+  </div>
+</div>
 
-  {% for row in overview %}
+<div class="table-wrapper">
+  <table>
     <tr>
-      <td>
-        {{ row.set.name }}
-        {% if row.set.series %} ({{ row.set.series }}){% endif %}
-      </td>
-      <td>{{ row.owned }} / {{ row.total }}</td>
-   <td>
-      {{ row.percent }}%
-     <div style="border:1px solid #999; width:150px; height:10px; margin-top:4px;">
-       <div style="height:10px; width: {{ row.percent|int }}%; background-color:#4caf50;"></div>
-     </div>
-  </td>
-      <td>
-        <a href="{{ url_for('main.view_set', set_id=row.set.id) }}">Set ansehen</a>
-
-        {% if current_user.is_admin %}
-          | <a href="{{ url_for('main.manage_cards', set_id=row.set.id) }}">Karten verwalten</a>
-        {% endif %}
-      </td>
+      <th>Set</th>
+      <th>Fortschritt</th>
+      <th>Prozent</th>
+      <th>Aktionen</th>
     </tr>
-  {% else %}
-    <tr><td colspan="4">Noch keine Sets vorhanden.</td></tr>
-  {% endfor %}
-</table>
+
+    {% for row in overview %}
+      <tr>
+        <td>
+          <strong>{{ row.set.name }}</strong>
+          {% if row.set.series %}
+            <br><span class="muted">{{ row.set.series }}</span>
+          {% endif %}
+        </td>
+        <td>{{ row.owned }} / {{ row.total }}</td>
+        <td>
+          {{ row.percent }}%
+          <div class="progress">
+            <div class="progress-bar" style="width: {{ row.percent|int }}%;"></div>
+          </div>
+        </td>
+        <td>
+          <div class="actions">
+            <a class="btn" href="{{ url_for('main.view_set', set_id=row.set.id) }}">Set ansehen</a>
+            {% if current_user.is_admin %}
+              <a class="btn btn-secondary" href="{{ url_for('main.manage_cards', set_id=row.set.id) }}">Karten verwalten</a>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="4">Noch keine Sets vorhanden.</td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
 
 {% endblock %}

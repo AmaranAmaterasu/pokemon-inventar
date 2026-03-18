@@ -2,35 +2,44 @@
 {% block content %}
 
 <h2>Karten verwalten – {{ selected_set.name }}</h2>
+<p class="muted">Hier kannst du neue Karten erfassen und bestehende Karten bearbeiten.</p>
 
-<form method="POST">
-  <input type="text" name="name" placeholder="Kartenname" required><br><br>
-  <input type="text" name="number" placeholder="Nummer (z.B. 12/102)" required><br><br>
-  <input type="text" name="rarity" placeholder="Rarity"><br><br>
-  <button type="submit">Karte hinzufügen</button>
+<form method="POST" class="form-grid">
+  <input type="text" name="name" placeholder="Kartenname" required>
+  <input type="text" name="number" placeholder="Nummer (z.B. 12/102)" required>
+  <input type="text" name="rarity" placeholder="Rarity">
+  <div class="actions">
+    <button type="submit">Karte hinzufügen</button>
+    <a class="btn btn-secondary" href="{{ url_for('main.manage_sets') }}">Zurück</a>
+  </div>
 </form>
 
-<hr>
+<div class="section-space">
+  <h3>Karten in diesem Set</h3>
 
-<h3>Karten in diesem Set</h3>
-<ul>
-{% for c in cards %}
-  <li>
-    {{ c.number }} – {{ c.name }}
-    {% if c.rarity %} ({{ c.rarity }}){% endif %}
+  <ul class="list-clean">
+    {% for c in cards %}
+      <li class="list-item">
+        <strong>{{ c.number }}</strong> – {{ c.name }}
+        {% if c.rarity %}
+          <span class="muted">({{ c.rarity }})</span>
+        {% endif %}
 
-    | <a href="{{ url_for('main.admin_edit_card', card_id=c.id) }}">✏️ Edit</a>
+        <div class="actions section-space">
+          <a class="btn btn-secondary" href="{{ url_for('main.admin_edit_card', card_id=c.id) }}">Bearbeiten</a>
 
-    | <form method="POST"
-           action="{{ url_for('main.admin_delete_card', card_id=c.id) }}"
-           style="display:inline;"
-           onsubmit="return confirm('Karte wirklich löschen?');">
-        <button type="submit">🗑 Delete</button>
-      </form>
-  </li>
-{% else %}
-  <li>Noch keine Karten vorhanden.</li>
-{% endfor %}
-</ul>
+          <form method="POST"
+                action="{{ url_for('main.admin_delete_card', card_id=c.id) }}"
+                class="inline-form"
+                onsubmit="return confirm('Karte wirklich löschen?');">
+            <button type="submit" class="btn btn-danger">Löschen</button>
+          </form>
+        </div>
+      </li>
+    {% else %}
+      <li class="list-item">Noch keine Karten vorhanden.</li>
+    {% endfor %}
+  </ul>
+</div>
 
 {% endblock %}
